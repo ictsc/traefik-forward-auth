@@ -14,8 +14,7 @@ ENV CGO_ENABLED=0
 RUN --mount=type=cache,target=/go/pkg/mod/ \
   --mount=type=cache,target=/root/.cache/go-build,sharing=locked \
   --mount=type=bind,source=.,target=. \
-  CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=on \
-  go build -a -installsuffix nocgo -o /traefik-forward-auth ./cmd/main.go
+  CGO_ENABLED=0 go build -o /traefik-forward-auth ./cmd/main.go
 
 FROM gcr.io/distroless/static-debian12:nonroot
 
