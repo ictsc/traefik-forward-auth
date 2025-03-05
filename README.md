@@ -9,33 +9,40 @@ A minimal forward authentication service that provides OAuth/SSO login and authe
 - Supports multiple domains/subdomains by dynamically generating redirect_uri's
 - Allows authentication to be selectively applied/bypassed based on request parameters (see `rules` in [Configuration](#configuration))
 - Supports use of centralised authentication host/redirect_uri (see `auth-host` in [Configuration](#configuration))
-- Allows authentication to persist across multiple domains (see [Cookie Domains](#cookie-domains))
+- Allows authentication to persist across multiple domains (see `Cookie Domains`)
 - Supports extended authentication beyond Google token lifetime (see: `lifetime` in [Configuration](#configuration))
 
-# Contents
+## Contents
 
-- [Releases](#releases)
-- [Usage](#usage)
-  - [Simple](#simple)
-  - [Advanced](#advanced)
-  - [Provider Setup](#provider-setup)
-- [Configuration](#configuration)
-  - [Overview](#overview)
-  - [Option Details](#option-details)
-- [Concepts](#concepts)
-  - [Forwarded Headers](#forwarded-headers)
-  - [User Restriction](#user-restriction)
-  - [Applying Authentication](#applying-authentication)
-    - [Global Authentication](#global-authentication)
-    - [Selective Ingress Authentication in Kubernetes](#selective-ingress-authentication-in-kubernetes)
-    - [Selective Container Authentication in Swarm](#selective-container-authentication-in-swarm)
-    - [Rules Based Authentication](#rules-based-authentication)
-  - [Operation Modes](#operation-modes)
-    - [Overlay Mode](#overlay-mode)
-    - [Auth Host Mode](#auth-host-mode)
-  - [Logging Out](#logging-out)
-- [Copyright](#copyright)
-- [License](#license)
+- [Traefik Forward Auth](#traefik-forward-auth)
+  - [Why?](#why)
+  - [Contents](#contents)
+  - [Releases](#releases)
+    - [Upgrade Guide](#upgrade-guide)
+  - [Usage](#usage)
+    - [Simple](#simple)
+    - [Advanced](#advanced)
+    - [Provider Setup](#provider-setup)
+      - [Google](#google)
+      - [OpenID Connect](#openid-connect)
+      - [Generic OAuth2](#generic-oauth2)
+  - [Configuration](#configuration)
+    - [Overview](#overview)
+    - [Option Details](#option-details)
+  - [Concepts](#concepts)
+    - [User Restriction](#user-restriction)
+    - [Forwarded Headers](#forwarded-headers)
+    - [Applying Authentication](#applying-authentication)
+      - [Global Authentication](#global-authentication)
+      - [Selective Ingress Authentication in Kubernetes](#selective-ingress-authentication-in-kubernetes)
+      - [Selective Container Authentication in Swarm](#selective-container-authentication-in-swarm)
+      - [Rules Based Authentication](#rules-based-authentication)
+    - [Operation Modes](#operation-modes)
+      - [Overlay Mode](#overlay-mode)
+      - [Auth Host Mode](#auth-host-mode)
+    - [Logging Out](#logging-out)
+  - [Copyright](#copyright)
+  - [License](#license)
 
 ## Releases
 
@@ -47,13 +54,13 @@ ARM releases are also available on docker hub, just append `-arm` or `-arm64` to
 
 We also build binary files for usage without docker starting with releases after 2.2.0 You can find these as assets of the specific GitHub release.
 
-#### Upgrade Guide
+### Upgrade Guide
 
 v2 was released in June 2019, whilst this is fully backwards compatible, a number of configuration options were modified, please see the [upgrade guide](https://github.com/logica0419/traefik-forward-auth/wiki/v2-Upgrade-Guide) to prevent warnings on startup and ensure you are using the current configuration.
 
 ## Usage
 
-#### Simple:
+### Simple
 
 See below for instructions on how to setup your [Provider Setup](#provider-setup).
 
@@ -90,27 +97,27 @@ services:
       - "traefik.http.routers.whoami.middlewares=traefik-forward-auth"
 ```
 
-#### Advanced:
+### Advanced
 
 Please see the examples directory for a more complete [docker-compose.yml](https://github.com/logica0419/traefik-forward-auth/blob/master/examples/traefik-v2/swarm/docker-compose.yml) or [kubernetes/simple-separate-pod](https://github.com/logica0419/traefik-forward-auth/blob/master/examples/traefik-v2/kubernetes/simple-separate-pod/).
 
 Also in the examples directory is [docker-compose-auth-host.yml](https://github.com/logica0419/traefik-forward-auth/blob/master/examples/traefik-v2/swarm/docker-compose-auth-host.yml) and [kubernetes/advanced-separate-pod](https://github.com/logica0419/traefik-forward-auth/blob/master/examples/traefik-v2/kubernetes/advanced-separate-pod/) which shows how to configure a central auth host, along with some other options.
 
-#### Provider Setup
+### Provider Setup
 
 Below are some general notes on provider setup, specific instructions and examples for a number of providers can be found on the [Provider Setup](https://github.com/logica0419/traefik-forward-auth/wiki/Provider-Setup) wiki page.
 
-##### Google
+#### Google
 
-Head to https://console.developers.google.com and make sure you've switched to the correct email account.
+Head to <https://console.developers.google.com> and make sure you've switched to the correct email account.
 
 Create a new project then search for and select "Credentials" in the search bar. Fill out the "OAuth Consent Screen" tab.
 
-Click "Create Credentials" > "OAuth client ID". Select "Web Application", fill in the name of your app, skip "Authorized JavaScript origins" and fill "Authorized redirect URIs" with all the domains you will allow authentication from, appended with the `url-path` (e.g. https://app.test.com/_oauth)
+Click "Create Credentials" > "OAuth client ID". Select "Web Application", fill in the name of your app, skip "Authorized JavaScript origins" and fill "Authorized redirect URIs" with all the domains you will allow authentication from, appended with the `url-path` (e.g. <https://app.test.com/_oauth>)
 
 You must set the `providers.google.client-id` and `providers.google.client-secret` config options.
 
-##### OpenID Connect
+#### OpenID Connect
 
 Any provider that supports OpenID Connect 1.0 can be configured via the OIDC config options below.
 
@@ -118,11 +125,12 @@ You must set the `providers.oidc.issuer-url`, `providers.oidc.client-id` and `pr
 
 Please see the [Provider Setup](https://github.com/logica0419/traefik-forward-auth/wiki/Provider-Setup) wiki page for examples.
 
-##### Generic OAuth2
+#### Generic OAuth2
 
 For providers that don't support OpenID Connect, we also have the Generic OAuth2 provider where you can statically configure the OAuth2 and "user" endpoints.
 
 You must set:
+
 - `providers.generic-oauth.auth-url` - URL the client should be sent to authenticate the authenticate
 - `providers.generic-oauth.token-url` - URL the service should call to exchange an auth code for an access token
 - `providers.generic-oauth.user-url` - URL used to retrieve user info (service makes a GET request)
@@ -130,6 +138,7 @@ You must set:
 - `providers.generic-oauth.client-secret` - Client Secret
 
 You can also set:
+
 - `providers.generic-oauth.scope`- Any scopes that should be included in the request (default: profile, email)
 - `providers.generic-oauth.token-style` - How token is presented when querying the User URL. Can be `header` or `query`, defaults to `header`. With `header` the token is provided in an Authorization header, with query the token is provided in the `access_token` query string value.
 
@@ -141,7 +150,7 @@ Please see the [Provider Setup](https://github.com/logica0419/traefik-forward-au
 
 The following configuration options are supported:
 
-```
+```plain
 Usage:
   traefik-forward-auth [OPTIONS]
 
@@ -208,7 +217,7 @@ All options can be supplied in any of the following ways, in the following prece
 
   The host should be specified without protocol or path, for example:
 
-   ```
+   ```plain
    --auth-host="auth.example.com"
    ```
 
@@ -220,7 +229,7 @@ All options can be supplied in any of the following ways, in the following prece
 
    Used to specify the path to a configuration file, can be set multiple times, each file will be read in the order they are passed. Options should be set in an INI format, for example:
 
-   ```
+   ```plain
    url-path = _oauthpath
    ```
 
@@ -229,7 +238,8 @@ All options can be supplied in any of the following ways, in the following prece
   When set, if a user successfully completes authentication, then if the host of the original request requiring authentication is a subdomain of a given cookie domain, then the authentication cookie will be set for the higher level cookie domain. This means that a cookie can allow access to multiple subdomains without re-authentication. Can be specificed multiple times.
 
    For example:
-   ```
+
+   ```plain
    --cookie-domain="example.com"  --cookie-domain="test.org"
    ```
 
@@ -255,13 +265,13 @@ All options can be supplied in any of the following ways, in the following prece
 
 - `default-action`
 
-   Specifies the behavior when a request does not match any [rules](#rules). Valid options are `auth` or `allow`.
+   Specifies the behavior when a request does not match any rules. Valid options are `auth` or `allow`.
 
    Default: `auth` (i.e. all requests require authentication)
 
 - `default-provider`
 
-   Set the default provider to use for authentication, this can be overridden within [rules](#rules). Valid options are currently `google` or `oidc`.
+   Set the default provider to use for authentication, this can be overridden within rules. Valid options are currently `google` or `oidc`.
 
    Default: `google`
 
@@ -269,7 +279,7 @@ All options can be supplied in any of the following ways, in the following prece
 
    When set, only users matching a given domain will be permitted to access.
 
-   For example, setting `--domain=example.com --domain=test.org` would mean that only users from example.com or test.org will be permitted. So thom@example.com would be allowed but thom@another.com would not.
+   For example, setting `--domain=example.com --domain=test.org` would mean that only users from example.com or test.org will be permitted. So <thom@example.com> would be allowed but <thom@another.com> would not.
 
    For more details, please also read [User Restriction](#user-restriction) in the concepts section.
 
@@ -309,7 +319,7 @@ All options can be supplied in any of the following ways, in the following prece
 
    When set, only specified users will be permitted.
 
-   For example, setting `--whitelist=thom@example.com --whitelist=alice@example.com` would mean that only those two exact users will be permitted. So thom@example.com would be allowed but john@example.com would not.
+   For example, setting `--whitelist=thom@example.com --whitelist=alice@example.com` would mean that only those two exact users will be permitted. So <thom@example.com> would be allowed but <john@example.com> would not.
 
    For more details, please also read [User Restriction](#user-restriction) in the concepts section.
 
@@ -317,28 +327,29 @@ All options can be supplied in any of the following ways, in the following prece
 
    Specify selective authentication rules. Rules are specified in the following format: `rule.<name>.<param>=<value>`
 
-   - `<name>` can be any string and is only used to group rules together
-   - `<param>` can be:
-       - `action` - same usage as [`default-action`](#default-action), supported values:
-           - `auth` (default)
-           - `allow`
-       - `domains` - optional, same usage as [`domain`](#domain)
-       - `provider` - same usage as [`default-provider`](#default-provider), supported values:
-           - `google`
-           - `oidc`
-       - `rule` - a rule to match a request, this uses traefik's v2 rule parser for which you can find the documentation here: https://docs.traefik.io/v2.0/routing/routers/#rule, supported values are summarised here:
-           - ``Headers(`key`, `value`)``
-           - ``HeadersRegexp(`key`, `regexp`)``
-           - ``Host(`example.com`, ...)``
-           - ``HostRegexp(`example.com`, `{subdomain:[a-z]+}.example.com`, ...)``
-           - ``Method(methods, ...)``
-           - ``Path(`path`, `/articles/{category}/{id:[0-9]+}`, ...)``
-           - ``PathPrefix(`/products/`, `/articles/{category}/{id:[0-9]+}`)``
-           - ``Query(`foo=bar`, `bar=baz`)``
-       - `whitelist` - optional, same usage as whitelist`](#whitelist)
+  - `<name>` can be any string and is only used to group rules together
+  - `<param>` can be:
+    - `action` - same usage as `default-action`, supported values:
+      - `auth` (default)
+      - `allow`
+    - `domains` - optional, same usage as `domain`
+    - `provider` - same usage as `default-provider`, supported values:
+      - `google`
+      - `oidc`
+    - `rule` - a rule to match a request, this uses traefik's v2 rule parser for which you can find the documentation here: <https://docs.traefik.io/v2.0/routing/routers/#rule>, supported values are summarised here:
+      - ``Headers(`key`, `value`)``
+      - ``HeadersRegexp(`key`, `regexp`)``
+      - ``Host(`example.com`, ...)``
+      - ``HostRegexp(`example.com`, `{subdomain:[a-z]+}.example.com`, ...)``
+      - ``Method(methods, ...)``
+      - ``Path(`path`, `/articles/{category}/{id:[0-9]+}`, ...)``
+      - ``PathPrefix(`/products/`, `/articles/{category}/{id:[0-9]+}`)``
+      - ``Query(`foo=bar`, `bar=baz`)``
+    - `whitelist` - optional, same usage as whitelist`](#whitelist)
 
    For example:
-   ```
+
+   ```ini
    # Allow requests that being with `/api/public` and contain the `Content-Type` header with a value of `application/json`
    rule.1.action = allow
    rule.1.rule = PathPrefix(`/api/public`) && Headers(`Content-Type`, `application/json`)
@@ -366,8 +377,8 @@ All options can be supplied in any of the following ways, in the following prece
 
 You can restrict who can login with the following parameters:
 
-* `domain` - Use this to limit logins to a specific domain, e.g. test.com only
-* `whitelist` - Use this to only allow specific users to login e.g. thom@test.com only
+- `domain` - Use this to limit logins to a specific domain, e.g. test.com only
+- `whitelist` - Use this to only allow specific users to login e.g. <thom@test.com> only
 
 Note, if you pass both `whitelist` and `domain`, then the default behaviour is for only `whitelist` to be used and `domain` will be effectively ignored. You can allow users matching *either* `whitelist` or `domain` by passing the `match-whitelist-or-domain` parameter (this will be the default behaviour in v3). If you set `domains` or `whitelist` on a rule, the global configuration is ignored.
 
