@@ -1,6 +1,4 @@
-
-# Traefik Forward Auth ![Build Status](https://img.shields.io/github/workflow/status/logica0419/traefik-forward-auth/CI) [![Go Report Card](https://goreportcard.com/badge/github.com/logica0419/traefik-forward-auth)](https://goreportcard.com/report/github.com/logica0419/traefik-forward-auth) ![Docker Pulls](https://img.shields.io/docker/pulls/logica0419/traefik-forward-auth.svg) [![GitHub release](https://img.shields.io/github/release/logica0419/traefik-forward-auth.svg)](https://GitHub.com/logica0419/traefik-forward-auth/releases/)
-
+# Traefik Forward Auth
 
 A minimal forward authentication service that provides OAuth/SSO login and authentication for the [traefik](https://github.com/containous/traefik) reverse proxy/load balancer.
 
