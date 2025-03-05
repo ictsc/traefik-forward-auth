@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM golang:1.23.4 AS builder
+FROM --platform=$BUILDPLATFORM golang:1.24.1 AS builder
 
 RUN --mount=type=cache,target=/go/pkg/mod,sharing=locked \
   --mount=type=bind,source=go.mod,target=go.mod \
