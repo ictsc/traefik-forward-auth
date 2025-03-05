@@ -32,23 +32,35 @@ func (s *Server) buildRoutes() {
 	for name, rule := range config.Rules {
 		matchRule := rule.formattedRule()
 		if rule.Action == "allow" {
-			_ = s.muxer.AddRoute(matchRule, 1, s.AllowHandler(name))
+			err = s.muxer.AddRoute(matchRule, "", 1, s.AllowHandler(name))
+			if err != nil {
+				log.Fatal(err)
+			}
 		} else {
-			_ = s.muxer.AddRoute(matchRule, 1, s.AuthHandler(rule.Provider, name))
+			err = s.muxer.AddRoute(matchRule, "", 1, s.AuthHandler(rule.Provider, name))
+			if err != nil {
+				log.Fatal(err)
+			}
 		}
 	}
 
 	// Add callback handler
-	s.muxer.Handle(config.Path, s.AuthCallbackHandler())
+	err = s.muxer.AddRoute("Path(`"+config.Path+"`)", "", 0, s.AuthCallbackHandler())
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	// Add logout handler
-	s.muxer.Handle(config.Path+"/logout", s.LogoutHandler())
+	err = s.muxer.AddRoute("Path(`"+config.Path+"/logout"+"`)", "", 0, s.AuthCallbackHandler())
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	// Add a default handler
 	if config.DefaultAction == "allow" {
-		s.muxer.NewRoute().Handler(s.AllowHandler("default"))
+		s.muxer.SetDefaultHandler(s.AllowHandler("default"))
 	} else {
-		s.muxer.NewRoute().Handler(s.AuthHandler(config.DefaultProvider, "default"))
+		s.muxer.SetDefaultHandler(s.AuthHandler(config.DefaultProvider, "default"))
 	}
 }
 
