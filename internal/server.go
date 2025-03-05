@@ -51,7 +51,7 @@ func (s *Server) buildRoutes() {
 	}
 
 	// Add logout handler
-	err = s.muxer.AddRoute("Path(`"+config.Path+"/logout"+"`)", "", 0, s.AuthCallbackHandler())
+	err = s.muxer.AddRoute("Path(`"+config.Path+"/logout`)", "", 0, s.LogoutHandler())
 	if err != nil {
 		log.Fatal(err)
 	}
