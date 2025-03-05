@@ -1,18 +1,24 @@
-FROM golang:1.20-alpine as builder
+FROM --platform=$BUILDPLATFORM golang:1.23.4 AS builder
 
-# Setup
-RUN mkdir -p /go/src/github.com/thomseddon/traefik-forward-auth
-WORKDIR /go/src/github.com/thomseddon/traefik-forward-auth
+RUN --mount=type=cache,target=/go/pkg/mod,sharing=locked \
+  --mount=type=bind,source=go.mod,target=go.mod \
+  --mount=type=bind,source=go.sum,target=go.sum \
+  go mod download -x
 
-# Add libraries
-RUN apk add --no-cache git
+ARG TARGETOS
+ARG TARGETARCH
+ENV GOOS=$TARGETOS
+ENV GOARCH=$TARGETARCH
+ENV CGO_ENABLED=0
 
-# Copy & build
-ADD . /go/src/github.com/thomseddon/traefik-forward-auth/
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=on go build -a -installsuffix nocgo -o /traefik-forward-auth github.com/thomseddon/traefik-forward-auth/cmd
+RUN --mount=type=cache,target=/go/pkg/mod/ \
+  --mount=type=cache,target=/root/.cache/go-build,sharing=locked \
+  --mount=type=bind,source=.,target=. \
+  CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=on \
+  go build -a -installsuffix nocgo -o /traefik-forward-auth ./cmd/main.go
 
-# Copy into scratch container
-FROM scratch
-COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-COPY --from=builder /traefik-forward-auth ./
-ENTRYPOINT ["./traefik-forward-auth"]
+FROM gcr.io/distroless/static-debian12:nonroot
+
+COPY --from=builder --chown=nonroot:nonroot /traefik-forward-auth /traefik-forward-auth
+
+ENTRYPOINT ["/traefik-forward-auth"]
