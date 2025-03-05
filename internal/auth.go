@@ -17,43 +17,68 @@ import (
 
 // Request Validation
 
+// ValidateBearerJWT verifies that the Authorization header contains a
+// valid Bearer JWT token
+func ValidateBearerJWT(req *http.Request, p provider.Provider) (string, string, error) {
+	auth := req.Header.Get("Authorization")
+	if auth == "" {
+		return "", "", errors.New("No Authorization header")
+	}
+
+	splitAuth := strings.Split(auth, " ")
+	if len(splitAuth) != 2 {
+		return "", "", fmt.Errorf("Invalid authorization header: %q", auth)
+	}
+
+	if splitAuth[0] != "Bearer" {
+		return "", "", fmt.Errorf("No Bearer token: %q", auth)
+	}
+
+	u, err := p.GetUser(splitAuth[1])
+	if err != nil {
+		return "", "", err
+	}
+
+	return u.Email, splitAuth[1], nil
+}
+
 // ValidateCookie verifies that a cookie matches the expected format of:
-// Cookie = hash(secret, cookie domain, email, expires)|expires|email
-func ValidateCookie(r *http.Request, c *http.Cookie) (string, error) {
+// Cookie = hash(secret, cookie domain, email, expires)|expires|email|token
+func ValidateCookie(r *http.Request, c *http.Cookie) (string, string, error) {
 	parts := strings.Split(c.Value, "|")
 
-	if len(parts) != 3 {
-		return "", errors.New("Invalid cookie format")
+	if len(parts) != 4 {
+		return "", "", errors.New("Invalid cookie format")
 	}
 
 	mac, err := base64.URLEncoding.DecodeString(parts[0])
 	if err != nil {
-		return "", errors.New("Unable to decode cookie mac")
+		return "", "", errors.New("Unable to decode cookie mac")
 	}
 
 	expectedSignature := cookieSignature(r, parts[2], parts[1])
 	expected, err := base64.URLEncoding.DecodeString(expectedSignature)
 	if err != nil {
-		return "", errors.New("Unable to generate mac")
+		return "", "", errors.New("Unable to generate mac")
 	}
 
 	// Valid token?
 	if !hmac.Equal(mac, expected) {
-		return "", errors.New("Invalid cookie mac")
+		return "", "", errors.New("Invalid cookie mac")
 	}
 
 	expires, err := strconv.ParseInt(parts[1], 10, 64)
 	if err != nil {
-		return "", errors.New("Unable to parse cookie expiry")
+		return "", "", errors.New("Unable to parse cookie expiry")
 	}
 
 	// Has it expired?
 	if time.Unix(expires, 0).Before(time.Now()) {
-		return "", errors.New("Cookie has expired")
+		return "", "", errors.New("Cookie has expired")
 	}
 
 	// Looks valid
-	return parts[2], nil
+	return parts[2], parts[3], nil
 }
 
 // ValidateEmail checks if the given email address matches either a whitelisted
@@ -162,10 +187,10 @@ func useAuthDomain(r *http.Request) (bool, string) {
 // Cookie methods
 
 // MakeCookie creates an auth cookie
-func MakeCookie(r *http.Request, email string) *http.Cookie {
+func MakeCookie(r *http.Request, email, token string) *http.Cookie {
 	expires := cookieExpiry()
 	mac := cookieSignature(r, email, fmt.Sprintf("%d", expires.Unix()))
-	value := fmt.Sprintf("%s|%d|%s", mac, expires.Unix(), email)
+	value := fmt.Sprintf("%s|%d|%s|%s", mac, expires.Unix(), email, token)
 
 	return &http.Cookie{
 		Name:     config.CookieName,

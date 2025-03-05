@@ -37,6 +37,9 @@ type Config struct {
 	MatchWhitelistOrDomain bool                 `long:"match-whitelist-or-domain" env:"MATCH_WHITELIST_OR_DOMAIN" description:"Allow users that match *either* whitelist or domain (enabled by default in v3)"`
 	Path                   string               `long:"url-path" env:"URL_PATH" default:"/_oauth" description:"Callback URL Path"`
 	SecretString           string               `long:"secret" env:"SECRET" description:"Secret used for signing (required)" json:"-"`
+	SkipJWTBearerTokens    bool                 `long:"skip-jwt-bearer-tokens" env:"SKIP_JWT_BEARER_TOKENS" description:"Skip cookie validation when JWT tokens are presented in the Authorization header"`
+	TokenPropagation       string               `long:"token-propagation" env:"TOKEN_PROPAGATION" default:"header" choice:"header" choice:"bearer" description:"How token is presented when querying the User URL"`
+	TokenPropagationHeader string               `long:"token-propagation-header" env:"TOKEN_PROPAGATION_HEADER" default:"X-Forwarded-Access-Toke" description:"Header to use when token-propagation is set to header. Available when token-propagation is set to header"`
 	Whitelist              CommaSeparatedList   `long:"whitelist" env:"WHITELIST" env-delim:"," description:"Only allow given email addresses, can be set multiple times"`
 	Port                   int                  `long:"port" env:"PORT" default:"4181" description:"Port to listen on"`
 

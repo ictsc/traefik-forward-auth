@@ -84,24 +84,27 @@ func (s *Server) AuthHandler(providerName, rule string) http.HandlerFunc {
 		// Logging setup
 		logger := s.logger(r, "Auth", rule, "Authenticating request")
 
-		// Get auth cookie
-		c, err := r.Cookie(config.CookieName)
+		email, token, err := ValidateBearerJWT(r, p)
 		if err != nil {
-			s.authRedirect(logger, w, r, p)
-			return
-		}
-
-		// Validate cookie
-		email, err := ValidateCookie(r, c)
-		if err != nil {
-			if err.Error() == "Cookie has expired" {
-				logger.Info("Cookie has expired")
+			// Get auth cookie
+			c, err := r.Cookie(config.CookieName)
+			if err != nil {
 				s.authRedirect(logger, w, r, p)
-			} else {
-				logger.WithField("error", err).Warn("Invalid cookie")
-				http.Error(w, "Not authorized", 401)
+				return
 			}
-			return
+
+			// Validate cookie
+			email, token, err = ValidateCookie(r, c)
+			if err != nil {
+				if err.Error() == "Cookie has expired" {
+					logger.Info("Cookie has expired")
+					s.authRedirect(logger, w, r, p)
+				} else {
+					logger.WithField("error", err).Warn("Invalid cookie")
+					http.Error(w, "Not authorized", 401)
+				}
+				return
+			}
 		}
 
 		// Validate user
@@ -115,6 +118,12 @@ func (s *Server) AuthHandler(providerName, rule string) http.HandlerFunc {
 		// Valid request
 		logger.Debug("Allowing valid request")
 		w.Header().Set("X-Forwarded-User", email)
+		switch config.TokenPropagation {
+		case "header":
+			w.Header().Set(config.TokenPropagationHeader, token)
+		case "bearer":
+			w.Header().Set("Authorization", "Bearer "+token)
+		}
 		w.WriteHeader(200)
 	}
 }
@@ -186,7 +195,7 @@ func (s *Server) AuthCallbackHandler() http.HandlerFunc {
 		}
 
 		// Generate cookie
-		http.SetCookie(w, MakeCookie(r, user.Email))
+		http.SetCookie(w, MakeCookie(r, user.Email, token))
 		logger.WithFields(logrus.Fields{
 			"provider": providerName,
 			"redirect": redirect,
