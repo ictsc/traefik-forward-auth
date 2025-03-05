@@ -18,6 +18,7 @@ require (
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
 	github.com/containous/alice v0.0.0-20181107144136-d83ebdd94cbd // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
+	github.com/fsnotify/fsnotify v1.8.0 // indirect
 	github.com/go-logr/logr v1.4.2 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/google/go-github/v28 v28.1.1 // indirect
@@ -35,7 +36,7 @@ require (
 	github.com/pquerna/cachecontrol v0.2.0 // indirect
 	github.com/rs/zerolog v1.33.0 // indirect
 	github.com/traefik/paerser v0.2.2 // indirect
-	github.com/unrolled/render v1.0.2 // indirect
+	github.com/unrolled/render v1.7.0 // indirect
 	github.com/vulcand/predicate v1.3.0 // indirect
 	go.opentelemetry.io/otel v1.32.0 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/otlplog/otlploggrpc v0.8.0 // indirect
