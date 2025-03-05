@@ -32,12 +32,12 @@ func (s *Server) buildRoutes() {
 	for name, rule := range config.Rules {
 		matchRule := rule.formattedRule()
 		if rule.Action == "allow" {
-			err = s.muxer.AddRoute(matchRule, "", 1, s.AllowHandler(name))
+			_ = s.muxer.AddRoute(matchRule, "v2", 1, s.AllowHandler(name))
 			if err != nil {
 				log.Fatal(err)
 			}
 		} else {
-			err = s.muxer.AddRoute(matchRule, "", 1, s.AuthHandler(rule.Provider, name))
+			err = s.muxer.AddRoute(matchRule, "v2", 1, s.AuthHandler(rule.Provider, name))
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -45,13 +45,13 @@ func (s *Server) buildRoutes() {
 	}
 
 	// Add callback handler
-	err = s.muxer.AddRoute("Path(`"+config.Path+"`)", "", 0, s.AuthCallbackHandler())
+	err = s.muxer.AddRoute("Path(`"+config.Path+"`)", "v2", 0, s.AuthCallbackHandler())
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	// Add logout handler
-	err = s.muxer.AddRoute("Path(`"+config.Path+"/logout`)", "", 0, s.LogoutHandler())
+	err = s.muxer.AddRoute("Path(`"+config.Path+"/logout`)", "v2", 0, s.LogoutHandler())
 	if err != nil {
 		log.Fatal(err)
 	}
