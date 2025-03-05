@@ -269,7 +269,7 @@ func TestAuthMakeCookie(t *testing.T) {
 	c := MakeCookie(r, "test@example.com", "test-token")
 	assert.Equal("_forward_auth", c.Name)
 	parts := strings.Split(c.Value, "|")
-	assert.Len(parts, 3, "cookie should be 3 parts")
+	assert.Len(parts, 4, "cookie should be 4 parts")
 	_, _, err := ValidateCookie(r, c)
 	assert.Nil(err, "should generate valid cookie")
 	assert.Equal("/", c.Path)
