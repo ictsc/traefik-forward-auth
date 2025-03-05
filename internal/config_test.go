@@ -375,7 +375,7 @@ func TestConfigGetProvider(t *testing.T) {
 	assert.Equal(&c.Providers.GenericOAuth, p)
 
 	// Should catch unknown provider
-	p, err = c.GetProvider("bad")
+	_, err = c.GetProvider("bad")
 	if assert.Error(err) {
 		assert.Equal("Unknown provider: bad", err.Error())
 	}
@@ -391,7 +391,7 @@ func TestConfigGetConfiguredProvider(t *testing.T) {
 	assert.Equal(&c.Providers.Google, p)
 
 	// Should fail to get valid "oidc" provider as it's not configured
-	p, err = c.GetConfiguredProvider("oidc")
+	_, err = c.GetConfiguredProvider("oidc")
 	if assert.Error(err) {
 		assert.Equal("Unconfigured provider: oidc", err.Error())
 	}

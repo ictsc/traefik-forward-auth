@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"regexp"
 	"strconv"
@@ -213,11 +212,11 @@ func (c *Config) parseUnknownFlag(option string, arg flags.SplitArgument, args [
 			rule.Provider = val
 		case "whitelist":
 			list := CommaSeparatedList{}
-			list.UnmarshalFlag(val)
+			_ = list.UnmarshalFlag(val)
 			rule.Whitelist = list
 		case "domains":
 			list := CommaSeparatedList{}
-			list.UnmarshalFlag(val)
+			_ = list.UnmarshalFlag(val)
 			rule.Domains = list
 		default:
 			return args, fmt.Errorf("invalid route param: %v", option)
@@ -242,7 +241,7 @@ func handleFlagError(err error) error {
 var legacyFileFormat = regexp.MustCompile(`(?m)^([a-z-]+) (.*)$`)
 
 func convertLegacyToIni(name string) (io.Reader, error) {
-	b, err := ioutil.ReadFile(name)
+	b, err := os.ReadFile(name)
 	if err != nil {
 		return nil, err
 	}

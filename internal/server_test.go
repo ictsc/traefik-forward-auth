@@ -2,7 +2,7 @@ package tfa
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -301,7 +301,6 @@ func TestServerLogout(t *testing.T) {
 	assert.Equal("http", fwd.Scheme, "valid request should be redirected to return url")
 	assert.Equal("redirect", fwd.Host, "valid request should be redirected to return url")
 	assert.Equal("/path", fwd.Path, "valid request should be redirected to return url")
-
 }
 
 func TestServerDefaultAction(t *testing.T) {
@@ -536,14 +535,14 @@ func doHttpRequest(r *http.Request, c *http.Cookie) (*http.Response, string) {
 	}
 
 	// Copy into request
-	for _, c := range w.HeaderMap["Set-Cookie"] {
+	for _, c := range w.Header()["Set-Cookie"] {
 		r.Header.Add("Cookie", c)
 	}
 
 	NewServer().RootHandler(w, r)
 
 	res := w.Result()
-	body, _ := ioutil.ReadAll(res.Body)
+	body, _ := io.ReadAll(res.Body)
 
 	// if res.StatusCode > 300 && res.StatusCode < 400 {
 	// 	fmt.Printf("%#v", res.Header)
@@ -559,7 +558,7 @@ func newDefaultConfig() *Config {
 	})
 
 	// Setup the google providers without running all the config validation
-	config.Providers.Google.Setup()
+	_ = config.Providers.Google.Setup()
 
 	return config
 }
