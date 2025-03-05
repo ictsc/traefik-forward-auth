@@ -1,8 +1,10 @@
 FROM --platform=$BUILDPLATFORM golang:1.24.1 AS builder
 
-RUN --mount=type=cache,target=/go/pkg/mod,sharing=locked \
-  --mount=type=bind,source=go.mod,target=go.mod \
+WORKDIR /src
+
+RUN --mount=type=cache,target=/go/pkg/mod/,sharing=locked \
   --mount=type=bind,source=go.sum,target=go.sum \
+  --mount=type=bind,source=go.mod,target=go.mod \
   go mod download -x
 
 ARG TARGETOS
@@ -13,7 +15,7 @@ ENV CGO_ENABLED=0
 
 RUN --mount=type=cache,target=/go/pkg/mod/ \
   --mount=type=bind,source=.,target=. \
-  go build -o /traefik-forward-auth ./cmd/main.go
+  go build -o /traefik-forward-auth -ldflags "-s -w" -trimpath ./cmd/main.go
 
 FROM gcr.io/distroless/static-debian12:nonroot
 
