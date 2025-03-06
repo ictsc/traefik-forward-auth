@@ -14,8 +14,8 @@ jobs:
     permissions:
       packages: write
     steps:
-      - name: Set IMAGE_TAG env
-        run: echo "IMAGE_TAG=$(echo ${GITHUB_REF:11})" >> $GITHUB_ENV
+      - name: Set TAG env
+        run: echo "TAG=$(echo ${GITHUB_REF:11})" >> $GITHUB_ENV
       - name: Checkout
         uses: actions/checkout@v4
       - name: Set up QEMU
@@ -34,7 +34,7 @@ jobs:
           push: true
           platforms: linux/amd64,linux/arm64
           tags: |
-            ghcr.io/${{ github.repository }}:${{ env.IMAGE_TAG }}
+            ghcr.io/${{ github.repository }}:${{ env.TAG }}
             ghcr.io/${{ github.repository }}:latest
 
   release-note:
@@ -43,6 +43,8 @@ jobs:
     permissions:
       contents: write
     steps:
+      - name: Set TAG env
+        run: echo "TAG=$(echo ${GITHUB_REF:11})" >> $GITHUB_ENV
       - name: Generate release notes
         uses: actions/github-script@v7
         with:
@@ -50,6 +52,6 @@ jobs:
             await github.rest.repos.createRelease({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              tag_name: "${{ inputs.tag }}",
+              tag_name: "${{ env.TAG }}",
               generate_release_notes: true,
             });
