@@ -160,6 +160,55 @@ func TestServerAuthHandlerValid(t *testing.T) {
 	assert.Equal([]string{"test@example.com"}, users, "X-Forwarded-User header should match user")
 }
 
+func TestServerAuthHandlerValidPropagationHeader(t *testing.T) {
+	assert := assert.New(t)
+	config = newDefaultConfig()
+	config.TokenPropagation = "header"
+	config.TokenPropagationHeader = "X-Test-Token"
+
+	// Should allow valid request email
+	req := newHTTPRequest("GET", "http://example.com/foo")
+	c := MakeCookie(req, "test@example.com", "test-token")
+	config.Domains = []string{}
+
+	res, _ := doHttpRequest(req, c)
+	assert.Equal(200, res.StatusCode, "valid request should be allowed")
+
+	// Should pass through user
+	users := res.Header["X-Forwarded-User"]
+	assert.Len(users, 1, "valid request should have X-Forwarded-User header")
+	assert.Equal([]string{"test@example.com"}, users, "X-Forwarded-User header should match user")
+
+	// Should pass through token
+	tokens := res.Header["X-Test-Token"]
+	assert.Len(tokens, 1, "valid request should have X-Test-Token header")
+	assert.Equal([]string{"test-token"}, tokens, "X-Test-Token header should match token")
+}
+
+func TestServerAuthHandlerValidPropagationBearer(t *testing.T) {
+	assert := assert.New(t)
+	config = newDefaultConfig()
+	config.TokenPropagation = "bearer"
+
+	// Should allow valid request email
+	req := newHTTPRequest("GET", "http://example.com/foo")
+	c := MakeCookie(req, "test@example.com", "test-token")
+	config.Domains = []string{}
+
+	res, _ := doHttpRequest(req, c)
+	assert.Equal(200, res.StatusCode, "valid request should be allowed")
+
+	// Should pass through user
+	users := res.Header["X-Forwarded-User"]
+	assert.Len(users, 1, "valid request should have X-Forwarded-User header")
+	assert.Equal([]string{"test@example.com"}, users, "X-Forwarded-User header should match user")
+
+	// Should pass through token
+	tokens := res.Header["Authorization"]
+	assert.Len(tokens, 1, "valid request should have Authorization header")
+	assert.Equal([]string{"Bearer test-token"}, tokens, "Authorization header should match token")
+}
+
 func TestServerAuthCallback(t *testing.T) {
 	assert := assert.New(t)
 	require := require.New(t)
