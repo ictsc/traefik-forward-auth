@@ -52,7 +52,7 @@ func TestOIDCGetLoginURL(t *testing.T) {
 		"client_id":     []string{"idtest"},
 		"redirect_uri":  []string{"http://example.com/_oauth"},
 		"response_type": []string{"code"},
-		"scope":         []string{"email openid profile"},
+		"scope":         []string{"email groups openid profile"},
 		"state":         []string{"state"},
 	}
 	assert.Equal(expectedQs, qs)
@@ -78,7 +78,7 @@ func TestOIDCGetLoginURL(t *testing.T) {
 		"client_id":     []string{"idtest"},
 		"redirect_uri":  []string{"http://example.com/_oauth"},
 		"response_type": []string{"code"},
-		"scope":         []string{"email openid profile"},
+		"scope":         []string{"email groups openid profile"},
 		"state":         []string{"state"},
 		"resource":      []string{"resourcetest"},
 	}
@@ -154,6 +154,7 @@ func setupOIDCTest(t *testing.T, bodyValues map[string]map[string]string) (*OIDC
 	p := OIDC{
 		ClientID:     "idtest",
 		ClientSecret: "sectest",
+		ExtraScopes:  []string{"profile", "groups"},
 		IssuerURL:    serverURL.String(),
 	}
 
