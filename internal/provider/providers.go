@@ -15,6 +15,8 @@ type Providers struct {
 }
 
 // Provider is used to authenticate users
+//
+//go:generate go tool go.uber.org/mock/mockgen -source=$GOFILE -package=$GOPACKAGE -destination=./mock/$GOFILE
 type Provider interface {
 	Name() string
 	GetLoginURL(redirectURI, state string) string
