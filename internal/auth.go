@@ -27,11 +27,11 @@ func ValidateBearerJWT(req *http.Request, p provider.Provider) (string, string, 
 
 	splitAuth := strings.Split(auth, " ")
 	if len(splitAuth) != 2 {
-		return "", "", fmt.Errorf("Invalid authorization header: %q", auth)
+		return "", "", fmt.Errorf("Invalid authorization header: %s", auth)
 	}
 
 	if splitAuth[0] != "Bearer" {
-		return "", "", fmt.Errorf("No Bearer token: %q", auth)
+		return "", "", fmt.Errorf("No Bearer token: %s", auth)
 	}
 
 	u, err := p.GetUser(splitAuth[1])

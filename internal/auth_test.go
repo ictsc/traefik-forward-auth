@@ -1,6 +1,7 @@
 package tfa
 
 import (
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -9,12 +10,68 @@ import (
 	"time"
 
 	"github.com/logica0419/traefik-forward-auth/internal/provider"
+	"github.com/logica0419/traefik-forward-auth/internal/provider/mock"
 	"github.com/stretchr/testify/assert"
+	"go.uber.org/mock/gomock"
 )
 
 /**
  * Tests
  */
+
+func TestAuthValidateBearerJWT(t *testing.T) {
+	assert := assert.New(t)
+	config, _ = NewConfig([]string{})
+	r, _ := http.NewRequest("GET", "http://example.com", nil)
+	ctrl := gomock.NewController(t)
+	mockProvider := mock.NewMockProvider(ctrl)
+
+	// Should require Authorization header
+	mockProvider.EXPECT().GetUser("").Times(0)
+	_, _, err := ValidateBearerJWT(r, mockProvider)
+	if assert.Error(err) {
+		assert.Equal("No Authorization header", err.Error())
+	}
+
+	// Should require 2 parts
+	r.Header.Set("Authorization", "invalid")
+	mockProvider.EXPECT().GetUser("").Times(0)
+	_, _, err = ValidateBearerJWT(r, mockProvider)
+	if assert.Error(err) {
+		assert.Equal("Invalid authorization header: invalid", err.Error())
+	}
+
+	r.Header.Set("Authorization", "not valid header")
+	mockProvider.EXPECT().GetUser("").Times(0)
+	_, _, err = ValidateBearerJWT(r, mockProvider)
+	if assert.Error(err) {
+		assert.Equal("Invalid authorization header: not valid header", err.Error())
+	}
+
+	// Should require Bearer Authorization header
+	r.Header.Set("Authorization", "Basic dGVzdDp0ZXN0")
+	mockProvider.EXPECT().GetUser("").Times(0)
+	_, _, err = ValidateBearerJWT(r, mockProvider)
+	if assert.Error(err) {
+		assert.Equal("No Bearer token: Basic dGVzdDp0ZXN0", err.Error())
+	}
+
+	// Should cache invalid token
+	r.Header.Set("Authorization", "Bearer invalid_token")
+	mockProvider.EXPECT().GetUser("invalid_token").Return(provider.User{}, errors.New("invalid token"))
+	_, _, err = ValidateBearerJWT(r, mockProvider)
+	if assert.Error(err) {
+		assert.Equal("invalid token", err.Error())
+	}
+
+	// Should accept valid Bearer token
+	r.Header.Set("Authorization", "Bearer valid_token")
+	mockProvider.EXPECT().GetUser("valid_token").Return(provider.User{Email: "test@test.com"}, nil)
+	email, token, err := ValidateBearerJWT(r, mockProvider)
+	assert.Nil(err, "valid request should not return an error")
+	assert.Equal("test@test.com", email, "valid request should return user email")
+	assert.Equal("valid_token", token, "valid request should return user token")
+}
 
 func TestAuthValidateCookie(t *testing.T) {
 	assert := assert.New(t)
@@ -22,7 +79,7 @@ func TestAuthValidateCookie(t *testing.T) {
 	r, _ := http.NewRequest("GET", "http://example.com", nil)
 	c := &http.Cookie{}
 
-	// Should require 3 parts
+	// Should require 4 parts
 	c.Value = ""
 	_, _, err := ValidateCookie(r, c)
 	if assert.Error(err) {
