@@ -35,7 +35,7 @@ require (
 	github.com/patrickmn/go-cache v2.1.0+incompatible // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/pquerna/cachecontrol v0.2.0 // indirect
-	github.com/rs/zerolog v1.33.0 // indirect
+	github.com/rs/zerolog v1.34.0 // indirect
 	github.com/traefik/paerser v0.2.2 // indirect
 	github.com/unrolled/render v1.7.0 // indirect
 	github.com/vulcand/predicate v1.3.0 // indirect
