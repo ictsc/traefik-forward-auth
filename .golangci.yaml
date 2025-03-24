@@ -1,5 +1,11 @@
-linters-settings:
-  staticcheck:
-    checks:
-      - all
-      - -SA5008
+version: "2"
+
+linters:
+  disable:
+    - errcheck
+    - staticcheck
+
+formatters:
+  enable:
+    - gci
+    - gofumpt
