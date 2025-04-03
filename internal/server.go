@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/logica0419/traefik-forward-auth/internal/provider"
+	"github.com/ictsc/traefik-forward-auth/internal/provider"
 	"github.com/sirupsen/logrus"
 	muxhttp "github.com/traefik/traefik/v3/pkg/muxer/http"
 )
