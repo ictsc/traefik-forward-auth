@@ -89,8 +89,8 @@ github.com/thomseddon/go-flags v1.4.1-0.20190507184247-a3629c504486 h1:hk17f4niA
 github.com/thomseddon/go-flags v1.4.1-0.20190507184247-a3629c504486/go.mod h1:NK9eZpNBmSKVxvyB/MExg6jW0Bo9hQyAuCP+b8MJFow=
 github.com/traefik/paerser v0.2.2 h1:cpzW/ZrQrBh3mdwD/jnp6aXASiUFKOVr6ldP+keJTcQ=
 github.com/traefik/paerser v0.2.2/go.mod h1:7BBDd4FANoVgaTZG+yh26jI6CA2nds7D/4VTEdIsh24=
-github.com/traefik/traefik/v3 v3.3.6 h1:x+pZDsg3IlRX2NVFmLJrtCOeIsZRVgB8N19n7pLZrmY=
-github.com/traefik/traefik/v3 v3.3.6/go.mod h1:Xb812TIm7Gt5XTAQpWI8+aODfQGrG8np1rPoSXwM+TM=
+github.com/traefik/traefik/v3 v3.3.7 h1:QpEo0kSc4+TAHLNJPjQ/8WMUbaVmnOuqhwXPlvxrB30=
+github.com/traefik/traefik/v3 v3.3.7/go.mod h1:Xb812TIm7Gt5XTAQpWI8+aODfQGrG8np1rPoSXwM+TM=
 github.com/unrolled/render v1.7.0 h1:1yke01/tZiZpiXfUG+zqB+6fq3G4I+KDmnh0EhPq7So=
 github.com/unrolled/render v1.7.0/go.mod h1:LwQSeDhjml8NLjIO9GJO1/1qpFJxtfVIpzxXKjfVkoI=
 github.com/vulcand/predicate v1.3.0 h1:jtNe4PHbLJ649dR7Gl+MSAzUhLGtLspAkWlSjoOiXg8=
