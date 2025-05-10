@@ -9,8 +9,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/logica0419/traefik-forward-auth/internal/provider"
-	"github.com/logica0419/traefik-forward-auth/internal/provider/mock"
+	"github.com/ictsc/traefik-forward-auth/internal/provider"
+	"github.com/ictsc/traefik-forward-auth/internal/provider/mock"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"
 )
