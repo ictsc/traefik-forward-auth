@@ -12,7 +12,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/logica0419/traefik-forward-auth/internal/provider"
+	"github.com/ictsc/traefik-forward-auth/internal/provider"
 )
 
 // Request Validation
