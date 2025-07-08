@@ -2,7 +2,7 @@ module github.com/logica0419/traefik-forward-auth
 
 go 1.23.7
 
-toolchain go1.24.4
+toolchain go1.24.5
 
 require (
 	github.com/coreos/go-oidc v2.3.0+incompatible
