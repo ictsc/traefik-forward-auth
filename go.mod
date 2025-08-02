@@ -5,7 +5,7 @@ go 1.23.7
 toolchain go1.24.5
 
 require (
-	github.com/coreos/go-oidc v2.3.0+incompatible
+	github.com/coreos/go-oidc v2.4.0+incompatible
 	github.com/sirupsen/logrus v1.9.3
 	github.com/stretchr/testify v1.10.0
 	github.com/thomseddon/go-flags v1.4.1-0.20190507184247-a3629c504486
