@@ -17,7 +17,7 @@ jobs:
       - name: Set TAG env
         run: echo "TAG=$(echo ${GITHUB_REF#refs/*/})" >> $GITHUB_ENV
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
