@@ -22,11 +22,12 @@ func NewServer() *Server {
 }
 
 func (s *Server) buildRoutes() {
-	var err error
-	s.muxer, err = muxhttp.NewMuxer()
+	parser, err := muxhttp.NewSyntaxParser()
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	s.muxer = muxhttp.NewMuxer(parser)
 
 	// Let's build a muxer
 	for name, rule := range config.Rules {
