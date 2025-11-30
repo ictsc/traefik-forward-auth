@@ -12,7 +12,7 @@ package mock
 import (
 	reflect "reflect"
 
-	provider "github.com/logica0419/traefik-forward-auth/internal/provider"
+	provider "github.com/ictsc/traefik-forward-auth/internal/provider"
 	gomock "go.uber.org/mock/gomock"
 )
 

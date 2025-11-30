@@ -1,4 +1,4 @@
-module github.com/logica0419/traefik-forward-auth
+module github.com/ictsc/traefik-forward-auth
 
 go 1.24.0
 
