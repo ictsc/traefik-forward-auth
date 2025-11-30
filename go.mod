@@ -86,3 +86,5 @@ require (
 )
 
 tool go.uber.org/mock/mockgen
+
+replace github.com/gorilla/mux => github.com/containous/mux v0.0.0-20250523120546-41b6ec3aed59
